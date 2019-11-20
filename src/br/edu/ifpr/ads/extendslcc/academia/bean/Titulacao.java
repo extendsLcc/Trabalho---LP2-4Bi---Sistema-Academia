@@ -3,17 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.edu.ifpr.ads.extendslcc.academia.model;
+package br.edu.ifpr.ads.extendslcc.academia.bean;
 
 /**
  *
  * @author aluno
  */
-public class Telefone {
+class Titulacao {
     
-    private int idTelefone;
-    private String numero;
-    private String tipo;
-    private Instrutor instrutor;
+    private int idTitulacao;
+    private String nome;
     
 }

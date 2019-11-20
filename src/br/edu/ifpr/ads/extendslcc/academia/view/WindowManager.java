@@ -5,15 +5,21 @@
  */
 package br.edu.ifpr.ads.extendslcc.academia.view;
 
+import br.ifpr.edu.adslcc.view.categoria.ViewCategoria;
+import br.ifpr.edu.adslcc.view.cidade.ViewCidade;
+import br.ifpr.edu.adslcc.view.estado.ViewEstado;
+import br.ifpr.edu.adslcc.view.marca.ViewMarca;
+import br.ifpr.edu.adslcc.view.proprietario.ViewProprietario;
+import br.edu.ifpr.ads.extendslcc.academia.view.Atividade.ViewAtividade;
 
 /**
  *
  * @author LCC
  */
-public class WindowManagerOld{
+public class WindowManager{
 
     private static ViewProprietario windowProprietario = new ViewProprietario();
-    private static ViewVeiculo windowVeiculo = new ViewVeiculo();
+    private static ViewAtividade windowVeiculo = new ViewAtividade();
     private static ViewCategoria windowCategoria = new ViewCategoria();
     private static ViewMarca windowMarca = new ViewMarca();
     private static ViewEstado windowEstado = new ViewEstado();
@@ -23,7 +29,7 @@ public class WindowManagerOld{
         return windowProprietario;
     }
 
-    public static ViewVeiculo getWindowVeiculo(){
+    public static ViewAtividade getWindowVeiculo(){
         return windowVeiculo;
     }
 
@@ -57,25 +63,25 @@ public class WindowManagerOld{
 
     public static void openWindowCategoria(){
         
-        WindowManagerOld.windowCategoria.setVisible( true );
+        WindowManager.windowCategoria.setVisible( true );
         
     }
 
     public static void openWindowMarca(){
         
-        WindowManagerOld.windowMarca.setVisible( true );
+        WindowManager.windowMarca.setVisible( true );
         
     }
 
     public static void openWindowEstado(){
         
-        WindowManagerOld.windowEstado.setVisible( true );
+        WindowManager.windowEstado.setVisible( true );
         
     }
 
     public static void openWindowCidade(){
         
-        WindowManagerOld.windowCidade.setVisible( true );
+        WindowManager.windowCidade.setVisible( true );
         
     }
 

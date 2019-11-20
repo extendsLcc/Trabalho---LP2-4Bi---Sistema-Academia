@@ -3,19 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.edu.ifpr.ads.extendslcc.academia.model;
-
-import java.util.Date;
+package br.edu.ifpr.ads.extendslcc.academia.bean;
 
 /**
  *
  * @author aluno
  */
-public class Chamada {
+public class Telefone {
     
-    private int idChamada;
-    private Date data;
-    private boolean presente;
-    //private 
+    private int idTelefone;
+    private String numero;
+    private String tipo;
+    private Instrutor instrutor;
     
 }
