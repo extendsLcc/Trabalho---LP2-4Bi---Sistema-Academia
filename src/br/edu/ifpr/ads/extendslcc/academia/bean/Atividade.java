@@ -11,7 +11,7 @@ package br.edu.ifpr.ads.extendslcc.academia.bean;
  */
 class Atividade {
     
-    private int idAtividade;
+    private int idAtividade = -1;
     private String nome;
 
     public int getIdAtividade(){

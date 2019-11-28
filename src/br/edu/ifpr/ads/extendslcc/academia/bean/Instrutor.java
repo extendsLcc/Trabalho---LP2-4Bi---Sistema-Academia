@@ -13,7 +13,7 @@ import java.util.Date;
  */
 class Instrutor {
     
-    private int idInstrutor;
+    private int idInstrutor = -1;
     private String rg;
     private String nome;
     private Date nascimento;

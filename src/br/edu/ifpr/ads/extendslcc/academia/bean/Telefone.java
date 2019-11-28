@@ -11,9 +11,18 @@ package br.edu.ifpr.ads.extendslcc.academia.bean;
  */
 public class Telefone {
     
-    private int idTelefone;
+    private int idTelefone = -1;
     private String numero;
     private String tipo;
     private Instrutor instrutor;
+    
+    public static String[] tipos = {
+        "Residencial",
+        "Celular",
+        "Comercial",
+        "Whastapp",
+        "Recados",
+        "Outros"
+    };
     
 }

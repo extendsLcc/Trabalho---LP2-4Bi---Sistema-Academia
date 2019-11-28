@@ -51,10 +51,4 @@ public class DaoFactory {
     
     }
     
-    public static EstadoDAO getEstadoDao(){
-    
-        return new EstadoDAO( con );
-    
-    }
-    
 }

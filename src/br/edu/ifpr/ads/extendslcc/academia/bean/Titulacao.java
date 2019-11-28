@@ -11,7 +11,7 @@ package br.edu.ifpr.ads.extendslcc.academia.bean;
  */
 class Titulacao {
     
-    private int idTitulacao;
+    private int idTitulacao = -1;
     private String nome;
     
 }

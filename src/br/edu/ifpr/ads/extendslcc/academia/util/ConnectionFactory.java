@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.ifpr.edu.adslcc.util;
+package br.edu.ifpr.ads.extendslcc.academia.util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

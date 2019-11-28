@@ -13,10 +13,10 @@ import java.util.Date;
  */
 public class Aluno {
     
-    private int idAluno;
+    private int idAluno = -1;
     private Date dataMatricula;
     private String nome;
-    private String endereço;
+    private String endereco;
     private Cidade cidade;
     private String telefone;
     private Date nascimento;
@@ -48,12 +48,12 @@ public class Aluno {
         this.nome = nome;
     }
 
-    public String getEndereço(){
-        return endereço;
+    public String getEndereco(){
+        return endereco;
     }
 
-    public void setEndereço( String endereço ){
-        this.endereço = endereço;
+    public void setEndereco( String endereço ){
+        this.endereco = endereço;
     }
 
     public Cidade getCidade(){

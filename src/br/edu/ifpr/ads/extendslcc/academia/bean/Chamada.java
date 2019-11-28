@@ -13,7 +13,7 @@ import java.util.Date;
  */
 public class Chamada {
     
-    private int idChamada;
+    private int idChamada = -1;
     private Date data;
     private boolean presente;
     private Matricula matricula;
