@@ -5,8 +5,12 @@
  */
 package br.edu.ifpr.ads.extendslcc.academia.view;
 
-import br.ifpr.edu.adslcc.util.ConnectionFactory;
 import br.ifpr.edu.adslcc.util.DaoFactory;
+import com.github.lgooddatepicker.components.DatePicker;
+import datechooser.beans.DateChooserCombo;
+import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  *
@@ -42,6 +46,9 @@ public class MainWindow extends javax.swing.JFrame {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
+        dateChooserCombo1 = new datechooser.beans.DateChooserCombo();
+        timePicker1 = new com.github.lgooddatepicker.components.TimePicker();
+        datePicker1 = new com.github.lgooddatepicker.components.DatePicker();
         jMenuBar1 = new javax.swing.JMenuBar();
         menuCadastro = new javax.swing.JMenu();
         itemInstrutor = new javax.swing.JMenuItem();
@@ -55,8 +62,8 @@ public class MainWindow extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
         jLabel1.setText("Academia de Ginástica");
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
 
         menuCadastro.setText("Cadastros");
 
@@ -118,9 +125,20 @@ public class MainWindow extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(265, 265, 265)
+                .addComponent(timePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(132, Short.MAX_VALUE)
-                .addComponent(jLabel1)
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(dateChooserCombo1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(datePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(0, 126, Short.MAX_VALUE)
+                        .addComponent(jLabel1)))
                 .addGap(156, 156, 156))
         );
         layout.setVerticalGroup(
@@ -128,7 +146,17 @@ public class MainWindow extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(123, 123, 123)
                 .addComponent(jLabel1)
-                .addContainerGap(382, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(127, 127, 127)
+                        .addComponent(dateChooserCombo1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 44, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(datePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(62, 62, 62)))
+                .addComponent(timePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(164, 164, 164))
         );
 
         pack();
@@ -160,6 +188,16 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void itemChamadaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemChamadaActionPerformed
         // TODO add your handling code here:
+        //Date date = Date.from( datePicker1.getDate().  );
+        DatePicker datePicker = new DatePicker();
+        datePicker.setDate( LocalDate.parse( "2018-10-20" ) );
+        datePicker1.setText( "2018-10-20" );
+        //datePicker.setDate( LocalDate. );
+        System.out.println( dateChooserCombo1.getCurrent().getTime());
+        java.util.Date date = java.sql.Date.valueOf(datePicker.getDate());
+        System.out.println( date );
+        
+        
     }//GEN-LAST:event_itemChamadaActionPerformed
 
     /**
@@ -199,6 +237,8 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private datechooser.beans.DateChooserCombo dateChooserCombo1;
+    private com.github.lgooddatepicker.components.DatePicker datePicker1;
     private javax.swing.JMenuItem itemAluno;
     private javax.swing.JMenuItem itemAtividade;
     private javax.swing.JMenuItem itemChamada;
@@ -210,5 +250,6 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenu menuCadastro;
+    private com.github.lgooddatepicker.components.TimePicker timePicker1;
     // End of variables declaration//GEN-END:variables
 }

@@ -5,14 +5,50 @@
  */
 package br.edu.ifpr.ads.extendslcc.academia.bean;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  *
  * @author aluno
  */
-class Atividade {
+public class Atividade {
     
     private int idAtividade = -1;
     private String nome;
+    private List<Turma> turmas = new LinkedList<>();
+
+    public Atividade(){
+    }
+    
+    public Atividade( String nome ){
+        this.nome = nome;
+    }
+
+    
+    public boolean addTurma( Turma turma ){
+
+        if( !this.turmas.contains( turma ) ){
+
+            this.turmas.add( turma );
+            return true;
+        }
+
+        return false;
+
+    }
+
+    public boolean removeTurma( Turma turma ){
+
+        if( this.turmas.contains( turma ) ){
+
+            this.turmas.remove( turma );
+            return true;
+        }
+
+        return false;
+
+    }
 
     public int getIdAtividade(){
         return idAtividade;

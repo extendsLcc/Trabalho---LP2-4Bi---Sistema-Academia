@@ -15,7 +15,7 @@ import java.util.List;
 public interface Dao<PK, T> {
     
     public boolean create( T entity );
-    public T retrive( Integer primaryKey );
+    public T retrieve( Integer primaryKey );
     public boolean update( T entity );
     public boolean delete( T entity );
     public List<T> findAll();
