@@ -141,4 +141,9 @@ public class Turma{
         this.instrutor = instrutor;
     }
 
+    @Override
+    public String toString(){
+        return "Turma " + this.getDataInicio().getYear() + " - " + this.getAtividade().getNome() + " | " + this.getInstrutor().getNome();
+    }
+    
 }

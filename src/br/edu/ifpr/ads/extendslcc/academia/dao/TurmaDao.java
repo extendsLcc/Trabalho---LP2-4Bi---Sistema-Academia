@@ -122,9 +122,9 @@ public class TurmaDao extends DefaultDao< Integer, Turma>{
             PreparedStatement query = con.prepareStatement( sql );
 
             int i = prepareTurmaStatement( query, entity, 0 );
-            
-            query.setInt( ++i, entity.getIdTurma());
-            
+
+            query.setInt( ++i, entity.getIdTurma() );
+
             query.executeUpdate();
             query.close();
 
@@ -173,7 +173,7 @@ public class TurmaDao extends DefaultDao< Integer, Turma>{
 
     @Override
     public List<Turma> findAll(){
-        List<Turma> alunos = new LinkedList<>();
+        List<Turma> turmas = new LinkedList<>();
         String sql = "SELECT * FROM Turma";
 
         try{
@@ -183,7 +183,7 @@ public class TurmaDao extends DefaultDao< Integer, Turma>{
 
             while( rs.next() ){
 
-                alunos.add( this.getTurmaFromResultSet( rs ) );
+                turmas.add( this.getTurmaFromResultSet( rs ) );
 
             }
 
@@ -195,13 +195,36 @@ public class TurmaDao extends DefaultDao< Integer, Turma>{
 
         }
 
-        return alunos;
+        return turmas;
 
     }
 
     List<Turma> findByInstrutor( Instrutor instrutor ){
 
-        throw new UnsupportedOperationException( "Not supported yet." ); //To change body of generated methods, choose Tools | Templates.
+        List<Turma> turmas = new LinkedList<>();
+        String sql = "SELECT * FROM Turma WHERE Instrutor_idInstrutor = ?";
+
+        try{
+
+            PreparedStatement query = con.prepareStatement( sql );
+            query.setInt( 1, instrutor.getIdInstrutor() );
+            ResultSet rs = query.executeQuery();
+
+            while( rs.next() ){
+
+                turmas.add( this.getTurmaFromResultSet( rs ) );
+
+            }
+
+            query.close();
+
+        }catch( Exception e ){
+
+            System.out.println( "SQL exception occured - Find Turma By Instrutor  " + e );
+
+        }
+
+        return turmas;
 
     }
 
@@ -278,7 +301,7 @@ public class TurmaDao extends DefaultDao< Integer, Turma>{
         query.setInt( ++index, entity.getInstrutor().getIdInstrutor() );
 
         return index;
-        
+
     }
 
 }

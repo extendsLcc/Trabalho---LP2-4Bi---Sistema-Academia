@@ -5,27 +5,216 @@
  */
 package br.edu.ifpr.ads.extendslcc.academia.view.instrutor;
 
+import br.edu.ifpr.ads.extendslcc.academia.bean.Instrutor;
+import br.edu.ifpr.ads.extendslcc.academia.bean.Titulacao;
+import br.edu.ifpr.ads.extendslcc.academia.dao.InstrutorDao;
+import br.edu.ifpr.ads.extendslcc.academia.dao.TitulacaoDao;
+import br.edu.ifpr.ads.extendslcc.academia.util.ConnectionFactory;
+import br.edu.ifpr.ads.extendslcc.academia.view.component.FilterListModel;
+import br.edu.ifpr.ads.extendslcc.academia.view.component.GenericComboModel;
+import java.awt.Component;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
 /**
  *
  * @author aluno
  */
-public class ViewInstrutor extends javax.swing.JFrame {
+public class ViewInstrutor extends javax.swing.JFrame{
 
     /**
      * Creates new form WindowProprietario
      */
-    public ViewInstrutor() {
+    public ViewInstrutor(){
         initComponents();
+        onInit();
+
     }
 
-    
-    
+    private GenericComboModel<Titulacao> comboTitulacaoModel;
+    private FilterListModel<Instrutor> listElemetsModel;
+    private TelefoneTableModel telefoneTableModel = new TelefoneTableModel();
+    private Instrutor currentInstrutor;
+
+    private void onInit(){
+        
+        enableComponents( false );
+        Connection con;
+
+        try{
+
+            con = ConnectionFactory.createConnectionToMySQL();
+            InstrutorDao instrutorDao = new InstrutorDao( con );
+            listElemetsModel = new FilterListModel<Instrutor>( instrutorDao.findAll() );
+            listElements.setModel( listElemetsModel );
+
+            TitulacaoDao titulacaoDao = new TitulacaoDao( con );
+            List<Titulacao> titulacoes = titulacaoDao.findAll();
+            comboTitulacaoModel = new GenericComboModel<>( titulacoes );
+            cbTitulacao.setModel( comboTitulacaoModel );
+
+        }catch( SQLException ex ){
+
+            System.out.println( "Erro na conexão do list Instrutor" );
+
+        }
+
+        tbTelefone.setModel( telefoneTableModel );
+
+        tfSearch.getDocument().addDocumentListener( new DocumentListener(){
+            @Override
+            public void insertUpdate( DocumentEvent e ){
+                filter();
+            }
+
+            @Override
+            public void removeUpdate( DocumentEvent e ){
+                filter();
+            }
+
+            @Override
+            public void changedUpdate( DocumentEvent e ){
+                filter();
+            }
+
+            private void filter(){
+
+                listElemetsModel.filter( tfSearch.getText() );
+
+            }
+
+        } );
+
+        listElements.getSelectionModel().addListSelectionListener( new ListSelectionListener(){//seleção alterada
+
+            @Override
+            public void valueChanged( ListSelectionEvent e ){
+
+                if( !e.getValueIsAdjusting() ){
+
+                    if( listElements.getSelectedIndex() >= 0 ){
+
+                        ViewInstrutor.this.currentInstrutor = listElements.getSelectedValue();
+                        fillFieldsByInstrutor( ViewInstrutor.this.currentInstrutor );
+                        btnUpdate.setEnabled( true );
+                        btnDelete.setEnabled( true );
+
+                    }else{
+
+                        enableComponents( false );
+                        btnUpdate.setEnabled( false );
+                        btnDelete.setEnabled( false );
+
+                    }
+
+                }
+
+            }
+
+        } );
+
+    }
+
+    private void fillFieldsByInstrutor( Instrutor instrutor ){
+
+        tfNome.setText( instrutor.getNome() );
+        tfRg.setText( instrutor.getRg() );
+        dateNascimento.getCurrent().setTime( instrutor.getNascimento() );
+        tfNome.setText( instrutor.getNome() );
+        for( Titulacao element : comboTitulacaoModel.getElements() ){
+            
+            System.out.println( element );
+            System.out.println( element.getIdTitulacao() );
+            
+        }
+        System.out.println( instrutor.getTitulacao() );
+        System.out.println( instrutor.getTitulacao().getIdTitulacao() );
+        Titulacao titulacao = comboTitulacaoModel.getElements().stream()
+                .filter( t -> t.getIdTitulacao() == instrutor.getTitulacao().getIdTitulacao() )
+                .findFirst()
+                .get();
+        comboTitulacaoModel.setSelectedItem( titulacao );
+
+        telefoneTableModel.clear();
+        telefoneTableModel.addAll( instrutor.getTelefones() );
+
+    }
+
+    private void setInstrutorByForms( Instrutor instrutor ){
+
+        instrutor.setNome( tfNome.getText() );
+        instrutor.setRg( tfRg.getText() );
+        instrutor.setNascimento( dateNascimento.getCurrent().getTime() );
+        instrutor.setTitulacao( comboTitulacaoModel.getSelectedItem() );
+
+        telefoneTableModel.getTelefones().stream()
+                .filter( tel -> !instrutor.getTelefones().contains( tel ) )
+                .forEach( tel -> instrutor.addTelefone( tel ) );
+
+        if( instrutor.getIdInstrutor() != -1 ){
+
+            instrutorDaoOperate( ( dao ) -> dao.update( instrutor ) );
+
+        }else{
+
+            instrutorDaoOperate( ( dao ) -> dao.create( instrutor ) );
+
+        }
+
+    }
+
+    private boolean instrutorDaoOperate( Function< InstrutorDao, Boolean> operation ){
+
+        try{
+
+            Connection con = ConnectionFactory.createConnectionToMySQL();
+
+            InstrutorDao instrutorDao = new InstrutorDao( con );
+            return operation.apply( instrutorDao );
+//            instrutorDao.update( instrutor );
+
+        }catch( SQLException ex ){
+
+            Logger.getLogger( ViewInstrutor.class.getName() ).log( Level.SEVERE, null, ex );
+
+        }
+
+        return false;
+
+    }
+
+    private void emptyFields(){
+
+        tfNome.setText( "" );
+        tfRg.setText( "" );
+        dateNascimento.getCurrent().setTime( new Date() );
+        telefoneTableModel.clear();
+
+    }
+
+    private void enableComponents( boolean enable ){
+
+        List<Component> components = Arrays.asList( paneFields.getComponents() );
+        components.forEach( c -> c.setEnabled( enable ) );
+
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
      * regenerated by the Form Editor.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings( "unchecked" )
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -43,7 +232,6 @@ public class ViewInstrutor extends javax.swing.JFrame {
         lblNome = new javax.swing.JLabel();
         lblRg = new javax.swing.JLabel();
         tfRg = new javax.swing.JTextField();
-        tfTitulacao = new javax.swing.JTextField();
         lblTitulacao = new javax.swing.JLabel();
         dateNascimento = new datechooser.beans.DateChooserCombo();
         lblNascimento = new javax.swing.JLabel();
@@ -52,13 +240,14 @@ public class ViewInstrutor extends javax.swing.JFrame {
         addTelefone = new javax.swing.JButton();
         removeTelefone = new javax.swing.JButton();
         lblTelefone = new javax.swing.JLabel();
+        cbTitulacao = new javax.swing.JComboBox<>();
         paneControls = new javax.swing.JPanel();
         btnNew = new javax.swing.JButton();
         btnUpdate = new javax.swing.JButton();
         btnDelete = new javax.swing.JButton();
         btnCancel = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Controle de Proprietário");
 
         paneTitledContainer.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Controle de Instrutor", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 24))); // NOI18N
@@ -69,11 +258,6 @@ public class ViewInstrutor extends javax.swing.JFrame {
 
         paneList.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Lista de Instrutores", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 14))); // NOI18N
 
-        listElements.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
         jScrollPane1.setViewportView(listElements);
 
         lblSearch.setText("Pesquisar:");
@@ -169,8 +353,7 @@ public class ViewInstrutor extends javax.swing.JFrame {
                             .addComponent(lblTitulacao, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(lblTelefone, javax.swing.GroupLayout.Alignment.TRAILING))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(paneFieldsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(tfTitulacao)
+                .addGroup(paneFieldsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, paneFieldsLayout.createSequentialGroup()
                         .addComponent(tfRg)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -183,7 +366,8 @@ public class ViewInstrutor extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(paneFieldsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(removeTelefone, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(addTelefone, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addComponent(addTelefone, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(cbTitulacao, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         paneFieldsLayout.setVerticalGroup(
@@ -203,8 +387,8 @@ public class ViewInstrutor extends javax.swing.JFrame {
                         .addComponent(lblRg)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(paneFieldsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(tfTitulacao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblTitulacao))
+                    .addComponent(lblTitulacao)
+                    .addComponent(cbTitulacao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(paneFieldsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(paneFieldsLayout.createSequentialGroup()
                         .addGap(32, 32, 32)
@@ -214,9 +398,9 @@ public class ViewInstrutor extends javax.swing.JFrame {
                     .addGroup(paneFieldsLayout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addGroup(paneFieldsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblTelefone)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap())
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblTelefone))))
+                .addContainerGap(39, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout PaneRightLayout = new javax.swing.GroupLayout(PaneRight);
@@ -238,18 +422,41 @@ public class ViewInstrutor extends javax.swing.JFrame {
 
         btnNew.setText("Cadastrar");
         btnNew.setPreferredSize(new java.awt.Dimension(90, 35));
+        btnNew.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnNewActionPerformed(evt);
+            }
+        });
         paneControls.add(btnNew);
 
         btnUpdate.setText("Alterar");
+        btnUpdate.setEnabled(false);
         btnUpdate.setPreferredSize(new java.awt.Dimension(90, 35));
+        btnUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUpdateActionPerformed(evt);
+            }
+        });
         paneControls.add(btnUpdate);
 
         btnDelete.setText("Excluir");
+        btnDelete.setEnabled(false);
         btnDelete.setPreferredSize(new java.awt.Dimension(90, 35));
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
         paneControls.add(btnDelete);
 
         btnCancel.setText("Cancelar");
+        btnCancel.setEnabled(false);
         btnCancel.setPreferredSize(new java.awt.Dimension(90, 35));
+        btnCancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelActionPerformed(evt);
+            }
+        });
         paneControls.add(btnCancel);
 
         paneBorderLayout.add(paneControls, java.awt.BorderLayout.PAGE_END);
@@ -291,6 +498,65 @@ public class ViewInstrutor extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewActionPerformed
+
+        this.emptyFields();
+        this.currentInstrutor = new Instrutor();
+        listElements.setEnabled( false );
+        btnNew.setEnabled( false );
+        btnDelete.setEnabled( false );
+        btnUpdate.setEnabled( true );
+        btnUpdate.setText( "Salvar" );
+        btnCancel.setEnabled( true );
+        enableComponents( true );
+
+    }//GEN-LAST:event_btnNewActionPerformed
+
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+
+        if( btnNew.isEnabled() ){
+
+            listElements.setEnabled( false );
+            btnDelete.setEnabled( false );
+            btnNew.setEnabled( false );
+            btnUpdate.setText( "Salvar" );
+            btnCancel.setEnabled( true );
+            listElements.clearSelection();
+
+        }else{
+
+            listElements.setEnabled( true );
+            btnNew.setEnabled( true );
+            btnUpdate.setText( "Editar" );
+            btnCancel.setEnabled( false );
+            this.setInstrutorByForms( this.currentInstrutor );
+            listElemetsModel.addElement( currentInstrutor );
+
+        }
+
+    }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+
+        Instrutor instrutor = listElements.getSelectedValue();
+        listElements.clearSelection();
+        listElemetsModel.removeElement( instrutor );
+        btnDelete.setEnabled( false );
+        instrutorDaoOperate( ( dao ) -> dao.delete( instrutor ) );
+
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
+        
+        listElements.setEnabled( true );
+        btnNew.setEnabled( true );
+        btnUpdate.setText( "Editar" );
+        btnCancel.setEnabled( false );
+        btnDelete.setEnabled( listElements.getSelectedValue() != null );
+        enableComponents( false );
+        
+    }//GEN-LAST:event_btnCancelActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel PaneRight;
     private javax.swing.JButton addTelefone;
@@ -298,6 +564,7 @@ public class ViewInstrutor extends javax.swing.JFrame {
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnNew;
     private javax.swing.JButton btnUpdate;
+    private javax.swing.JComboBox<Titulacao> cbTitulacao;
     private datechooser.beans.DateChooserCombo dateNascimento;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -307,7 +574,7 @@ public class ViewInstrutor extends javax.swing.JFrame {
     private javax.swing.JLabel lblSearch;
     private javax.swing.JLabel lblTelefone;
     private javax.swing.JLabel lblTitulacao;
-    private javax.swing.JList<String> listElements;
+    private javax.swing.JList<Instrutor> listElements;
     private javax.swing.JPanel paneBorderLayout;
     private javax.swing.JPanel paneControls;
     private javax.swing.JPanel paneFields;
@@ -319,6 +586,5 @@ public class ViewInstrutor extends javax.swing.JFrame {
     private javax.swing.JTextField tfNome;
     private javax.swing.JTextField tfRg;
     private javax.swing.JTextField tfSearch;
-    private javax.swing.JTextField tfTitulacao;
     // End of variables declaration//GEN-END:variables
 }

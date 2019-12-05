@@ -31,13 +31,6 @@ public class TelefoneDao extends DefaultDao<Integer, Telefone>{
         String sql = "INSERT INTO Telefone ( numero, tipo, Instrutor_idInstrutor ) "
                 + "VALUES ( ?, ?, ? )";
 
-        if( entity.getInstrutor().getIdInstrutor() == -1 ){
-
-            InstrutorDao instrutorDao = new InstrutorDao( con );
-            instrutorDao.create( entity.getInstrutor() );
-            
-        }
-
         try{
             
             PreparedStatement query = con.prepareStatement( sql, Statement.RETURN_GENERATED_KEYS );
@@ -148,6 +141,9 @@ public class TelefoneDao extends DefaultDao<Integer, Telefone>{
 
             query.executeUpdate();
             query.close();
+            
+            entity.getInstrutor().removeTelefone( entity );
+            
             return true;
 
         }catch( SQLException ex ){

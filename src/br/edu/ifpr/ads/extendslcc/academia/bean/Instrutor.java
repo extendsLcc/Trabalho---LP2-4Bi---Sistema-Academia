@@ -137,4 +137,9 @@ public class Instrutor{
         this.titulacao = titulacao;
     }
 
+    @Override
+    public String toString(){
+        return  nome;
+    }
+
 }

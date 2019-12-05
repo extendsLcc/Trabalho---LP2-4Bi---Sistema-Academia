@@ -172,4 +172,9 @@ public class Aluno{
         this.turma = turma;
     }
 
+    @Override
+    public String toString(){
+        return  nome;
+    }
+
 }

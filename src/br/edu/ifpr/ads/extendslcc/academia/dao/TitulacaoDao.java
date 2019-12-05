@@ -5,9 +5,7 @@
  */
 package br.edu.ifpr.ads.extendslcc.academia.dao;
 
-import br.edu.ifpr.ads.extendslcc.academia.bean.Instrutor;
 import br.edu.ifpr.ads.extendslcc.academia.bean.Titulacao;
-import br.edu.ifpr.ads.extendslcc.academia.bean.Turma;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -76,6 +74,7 @@ public class TitulacaoDao extends DefaultDao<Integer, Titulacao>{
             while( rs.next() ){
 
                 titulacao = new Titulacao();
+                titulacao.setIdTitulacao( rs.getInt( "idTitulacao" ) );
                 titulacao.setNome( rs.getString( "nome" ) );
 
             }
