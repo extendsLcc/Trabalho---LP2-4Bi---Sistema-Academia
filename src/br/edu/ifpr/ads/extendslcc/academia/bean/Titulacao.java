@@ -9,7 +9,7 @@ package br.edu.ifpr.ads.extendslcc.academia.bean;
  *
  * @author aluno
  */
-public class Titulacao {
+public class Titulacao implements Type{
     
     private int idTitulacao = -1;
     private String nome;
@@ -40,6 +40,20 @@ public class Titulacao {
     @Override
     public String toString(){
         return nome;
+    }
+
+    @Override
+    public void setId( int id ) {
+
+        this.setIdTitulacao(id);
+        
+    }
+
+    @Override
+    public int getId() {
+
+        return this.getIdTitulacao();
+        
     }
 
 }
