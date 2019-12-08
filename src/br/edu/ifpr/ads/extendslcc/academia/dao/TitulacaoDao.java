@@ -100,6 +100,7 @@ public class TitulacaoDao extends DefaultDao<Integer, Titulacao>{
 
             PreparedStatement query = con.prepareStatement( sql );
             query.setString( 1, entity.getNome() );
+            query.setInt(2, entity.getIdTitulacao());
 
             query.executeUpdate();
             query.close();

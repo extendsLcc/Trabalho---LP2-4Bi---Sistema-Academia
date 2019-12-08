@@ -22,13 +22,13 @@ public class Telefone {
     
     private int idTelefone = -1;
     private String numero;
-    private int tipo;
+    private String tipo;
     private Instrutor instrutor;
 
     public Telefone(){
     }
 
-    public Telefone( String numero, int tipo, Instrutor instrutor ){
+    public Telefone( String numero, String tipo, Instrutor instrutor ){
         this.numero = numero;
         this.tipo = tipo;
         this.instrutor = instrutor;
@@ -50,11 +50,11 @@ public class Telefone {
         this.idTelefone = idTelefone;
     }
 
-    public int getTipo(){
+    public String getTipo(){
         return tipo;
     }
 
-    public void setTipo( int tipo ){
+    public void setTipo( String tipo ){
         this.tipo = tipo;
     }
 
@@ -66,10 +66,4 @@ public class Telefone {
         this.instrutor = instrutor;
     }
 
-    public String getTipoTelefone(){
-        
-        return Telefone.TIPOS_TELEFONE[tipo];
-        
-    }
-    
 }

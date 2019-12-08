@@ -61,7 +61,7 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `academia`.`Telefone` (
   `idTelefone` INT NOT NULL AUTO_INCREMENT,
   `numero` VARCHAR(20) NOT NULL,
-  `tipo` INT NULL,
+  `tipo` varchar( 30 ) NOT NULL,
   `Instrutor_idInstrutor` INT NOT NULL,
   PRIMARY KEY (`idTelefone`),
   UNIQUE INDEX `idTelefone_UNIQUE` (`idTelefone` ASC),

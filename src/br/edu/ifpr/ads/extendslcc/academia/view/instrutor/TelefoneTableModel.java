@@ -6,8 +6,13 @@
 package br.edu.ifpr.ads.extendslcc.academia.view.instrutor;
 
 import br.edu.ifpr.ads.extendslcc.academia.bean.Telefone;
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
+import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
 /**
@@ -18,9 +23,11 @@ public class TelefoneTableModel extends AbstractTableModel{
 
     private final String[] column = { "Número", "Tipo" };
     private List<Telefone> telefones;
+    private JTable table;
 
-    public TelefoneTableModel(){
+    public TelefoneTableModel( JTable table ){
         this.telefones = new ArrayList<>();
+        this.table = table;
     }
 
     public void addRow( Telefone c ){
@@ -35,6 +42,11 @@ public class TelefoneTableModel extends AbstractTableModel{
 
     public void removeRow( int row ){
         this.telefones.remove( row );
+        this.fireTableDataChanged();
+    }
+
+    public void removeTelefone( Telefone tel ){
+        this.telefones.remove( tel );
         this.fireTableDataChanged();
     }
 
@@ -68,14 +80,14 @@ public class TelefoneTableModel extends AbstractTableModel{
     }
 
     public List<Telefone> getTelefones(){
-    
+
         return telefones;
-    
+
     }
 
     @Override
     public boolean isCellEditable( int rowIndex, int columnIndex ){
-        return columnIndex != 1;
+        return table.isEnabled();
     }
 
     @Override
@@ -96,7 +108,10 @@ public class TelefoneTableModel extends AbstractTableModel{
                 telefones.get( linha ).setNumero( (String) valor );
                 break;
             case 1:
-                telefones.get( linha ).setTipo( Integer.parseInt( (String) valor ) );
+                try{
+                    telefones.get( linha ).setTipo( (String) valor );
+                }catch( Exception e ){
+                }
                 break;
         }
         this.fireTableRowsUpdated( linha, linha );

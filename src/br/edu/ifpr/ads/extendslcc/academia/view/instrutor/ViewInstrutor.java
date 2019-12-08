@@ -6,21 +6,27 @@
 package br.edu.ifpr.ads.extendslcc.academia.view.instrutor;
 
 import br.edu.ifpr.ads.extendslcc.academia.bean.Instrutor;
+import br.edu.ifpr.ads.extendslcc.academia.bean.Telefone;
 import br.edu.ifpr.ads.extendslcc.academia.bean.Titulacao;
 import br.edu.ifpr.ads.extendslcc.academia.dao.InstrutorDao;
+import br.edu.ifpr.ads.extendslcc.academia.dao.TelefoneDao;
 import br.edu.ifpr.ads.extendslcc.academia.dao.TitulacaoDao;
 import br.edu.ifpr.ads.extendslcc.academia.util.ConnectionFactory;
 import br.edu.ifpr.ads.extendslcc.academia.view.component.FilterListModel;
 import br.edu.ifpr.ads.extendslcc.academia.view.component.GenericComboModel;
+import br.edu.ifpr.ads.extendslcc.academia.view.component.GenericTypeList;
 import java.awt.Component;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import javax.swing.JOptionPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
@@ -36,176 +42,9 @@ public class ViewInstrutor extends javax.swing.JFrame{
      * Creates new form WindowProprietario
      */
     public ViewInstrutor(){
+
         initComponents();
         onInit();
-
-    }
-
-    private GenericComboModel<Titulacao> comboTitulacaoModel;
-    private FilterListModel<Instrutor> listElemetsModel;
-    private TelefoneTableModel telefoneTableModel = new TelefoneTableModel();
-    private Instrutor currentInstrutor;
-
-    private void onInit(){
-        
-        enableComponents( false );
-        Connection con;
-
-        try{
-
-            con = ConnectionFactory.createConnectionToMySQL();
-            InstrutorDao instrutorDao = new InstrutorDao( con );
-            listElemetsModel = new FilterListModel<Instrutor>( instrutorDao.findAll() );
-            listElements.setModel( listElemetsModel );
-
-            TitulacaoDao titulacaoDao = new TitulacaoDao( con );
-            List<Titulacao> titulacoes = titulacaoDao.findAll();
-            comboTitulacaoModel = new GenericComboModel<>( titulacoes );
-            cbTitulacao.setModel( comboTitulacaoModel );
-
-        }catch( SQLException ex ){
-
-            System.out.println( "Erro na conexão do list Instrutor" );
-
-        }
-
-        tbTelefone.setModel( telefoneTableModel );
-
-        tfSearch.getDocument().addDocumentListener( new DocumentListener(){
-            @Override
-            public void insertUpdate( DocumentEvent e ){
-                filter();
-            }
-
-            @Override
-            public void removeUpdate( DocumentEvent e ){
-                filter();
-            }
-
-            @Override
-            public void changedUpdate( DocumentEvent e ){
-                filter();
-            }
-
-            private void filter(){
-
-                listElemetsModel.filter( tfSearch.getText() );
-
-            }
-
-        } );
-
-        listElements.getSelectionModel().addListSelectionListener( new ListSelectionListener(){//seleção alterada
-
-            @Override
-            public void valueChanged( ListSelectionEvent e ){
-
-                if( !e.getValueIsAdjusting() ){
-
-                    if( listElements.getSelectedIndex() >= 0 ){
-
-                        ViewInstrutor.this.currentInstrutor = listElements.getSelectedValue();
-                        fillFieldsByInstrutor( ViewInstrutor.this.currentInstrutor );
-                        btnUpdate.setEnabled( true );
-                        btnDelete.setEnabled( true );
-
-                    }else{
-
-                        enableComponents( false );
-                        btnUpdate.setEnabled( false );
-                        btnDelete.setEnabled( false );
-
-                    }
-
-                }
-
-            }
-
-        } );
-
-    }
-
-    private void fillFieldsByInstrutor( Instrutor instrutor ){
-
-        tfNome.setText( instrutor.getNome() );
-        tfRg.setText( instrutor.getRg() );
-        dateNascimento.getCurrent().setTime( instrutor.getNascimento() );
-        tfNome.setText( instrutor.getNome() );
-        for( Titulacao element : comboTitulacaoModel.getElements() ){
-            
-            System.out.println( element );
-            System.out.println( element.getIdTitulacao() );
-            
-        }
-        System.out.println( instrutor.getTitulacao() );
-        System.out.println( instrutor.getTitulacao().getIdTitulacao() );
-        Titulacao titulacao = comboTitulacaoModel.getElements().stream()
-                .filter( t -> t.getIdTitulacao() == instrutor.getTitulacao().getIdTitulacao() )
-                .findFirst()
-                .get();
-        comboTitulacaoModel.setSelectedItem( titulacao );
-
-        telefoneTableModel.clear();
-        telefoneTableModel.addAll( instrutor.getTelefones() );
-
-    }
-
-    private void setInstrutorByForms( Instrutor instrutor ){
-
-        instrutor.setNome( tfNome.getText() );
-        instrutor.setRg( tfRg.getText() );
-        instrutor.setNascimento( dateNascimento.getCurrent().getTime() );
-        instrutor.setTitulacao( comboTitulacaoModel.getSelectedItem() );
-
-        telefoneTableModel.getTelefones().stream()
-                .filter( tel -> !instrutor.getTelefones().contains( tel ) )
-                .forEach( tel -> instrutor.addTelefone( tel ) );
-
-        if( instrutor.getIdInstrutor() != -1 ){
-
-            instrutorDaoOperate( ( dao ) -> dao.update( instrutor ) );
-
-        }else{
-
-            instrutorDaoOperate( ( dao ) -> dao.create( instrutor ) );
-
-        }
-
-    }
-
-    private boolean instrutorDaoOperate( Function< InstrutorDao, Boolean> operation ){
-
-        try{
-
-            Connection con = ConnectionFactory.createConnectionToMySQL();
-
-            InstrutorDao instrutorDao = new InstrutorDao( con );
-            return operation.apply( instrutorDao );
-//            instrutorDao.update( instrutor );
-
-        }catch( SQLException ex ){
-
-            Logger.getLogger( ViewInstrutor.class.getName() ).log( Level.SEVERE, null, ex );
-
-        }
-
-        return false;
-
-    }
-
-    private void emptyFields(){
-
-        tfNome.setText( "" );
-        tfRg.setText( "" );
-        dateNascimento.getCurrent().setTime( new Date() );
-        telefoneTableModel.clear();
-
-    }
-
-    private void enableComponents( boolean enable ){
-
-        List<Component> components = Arrays.asList( paneFields.getComponents() );
-        components.forEach( c -> c.setEnabled( enable ) );
 
     }
 
@@ -241,6 +80,7 @@ public class ViewInstrutor extends javax.swing.JFrame{
         removeTelefone = new javax.swing.JButton();
         lblTelefone = new javax.swing.JLabel();
         cbTitulacao = new javax.swing.JComboBox<>();
+        btnControleTitulacao = new javax.swing.JButton();
         paneControls = new javax.swing.JPanel();
         btnNew = new javax.swing.JButton();
         btnUpdate = new javax.swing.JButton();
@@ -331,10 +171,27 @@ public class ViewInstrutor extends javax.swing.JFrame{
         jScrollPane2.setViewportView(tbTelefone);
 
         addTelefone.setText("+");
+        addTelefone.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addTelefoneActionPerformed(evt);
+            }
+        });
 
         removeTelefone.setText("-");
+        removeTelefone.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                removeTelefoneActionPerformed(evt);
+            }
+        });
 
         lblTelefone.setText("Telefone:");
+
+        btnControleTitulacao.setText("...");
+        btnControleTitulacao.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnControleTitulacaoActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout paneFieldsLayout = new javax.swing.GroupLayout(paneFields);
         paneFields.setLayout(paneFieldsLayout);
@@ -361,13 +218,15 @@ public class ViewInstrutor extends javax.swing.JFrame{
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(dateNascimento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(tfNome, javax.swing.GroupLayout.DEFAULT_SIZE, 463, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, paneFieldsLayout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addGroup(paneFieldsLayout.createSequentialGroup()
+                        .addGroup(paneFieldsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addComponent(cbTitulacao, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(paneFieldsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(removeTelefone, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(addTelefone, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addComponent(cbTitulacao, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(addTelefone, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(removeTelefone, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnControleTitulacao, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         paneFieldsLayout.setVerticalGroup(
@@ -388,7 +247,8 @@ public class ViewInstrutor extends javax.swing.JFrame{
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(paneFieldsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblTitulacao)
-                    .addComponent(cbTitulacao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cbTitulacao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnControleTitulacao, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(paneFieldsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(paneFieldsLayout.createSequentialGroup()
                         .addGap(32, 32, 32)
@@ -498,17 +358,106 @@ public class ViewInstrutor extends javax.swing.JFrame{
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private GenericComboModel<Titulacao> comboTitulacaoModel;
+    private FilterListModel<Instrutor> listElemetsModel;
+    private TelefoneTableModel telefoneTableModel;
+    private Instrutor currentInstrutor;
+
+    private void onInit(){
+
+        enableComponents( false );
+        Connection con;
+
+        try{
+
+            con = ConnectionFactory.createConnectionToMySQL();
+            InstrutorDao instrutorDao = new InstrutorDao( con );
+            listElemetsModel = new FilterListModel<Instrutor>( instrutorDao.findAll() );
+            listElements.setModel( listElemetsModel );
+            con.close();
+
+        }catch( SQLException ex ){
+
+            System.out.println( "Erro na conexão do list Instrutor " + ex.getMessage() );
+
+        }
+
+        comboTitulacaoModel = new GenericComboModel<>();
+        cbTitulacao.setModel( comboTitulacaoModel );
+        updateComboTitulacao();
+        
+        telefoneTableModel = new TelefoneTableModel( tbTelefone );
+        tbTelefone.setModel( telefoneTableModel );
+        tbTelefone.getColumnModel().getColumn( 1 ).setCellEditor( new ComboTipoTelefone() );
+
+        tfSearch.getDocument().addDocumentListener( new DocumentListener(){
+            @Override
+            public void insertUpdate( DocumentEvent e ){
+                filter();
+            }
+
+            @Override
+            public void removeUpdate( DocumentEvent e ){
+                filter();
+            }
+
+            @Override
+            public void changedUpdate( DocumentEvent e ){
+                filter();
+            }
+
+            private void filter(){
+
+                listElemetsModel.filter( tfSearch.getText() );
+
+            }
+
+        } );
+
+        listElements.getSelectionModel().addListSelectionListener( new ListSelectionListener(){//seleção alterada
+
+            @Override
+            public void valueChanged( ListSelectionEvent e ){
+
+                if( !e.getValueIsAdjusting() ){
+
+                    if( listElements.getSelectedIndex() >= 0 ){
+
+                        ViewInstrutor.this.currentInstrutor = listElements.getSelectedValue();
+                        fillFieldsByInstrutor( ViewInstrutor.this.currentInstrutor );
+                        System.out.println( currentInstrutor.getTelefones() );
+                        btnUpdate.setEnabled( true );
+                        btnDelete.setEnabled( true );
+
+                    }else{
+
+                        enableComponents( false );
+                        btnUpdate.setEnabled( false );
+                        btnDelete.setEnabled( false );
+
+                    }
+
+                }
+
+            }
+
+        } );
+
+    }
+
     private void btnNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewActionPerformed
 
         this.emptyFields();
         this.currentInstrutor = new Instrutor();
+        listElements.clearSelection();
         listElements.setEnabled( false );
         btnNew.setEnabled( false );
         btnDelete.setEnabled( false );
+        btnCancel.setEnabled( true );
         btnUpdate.setEnabled( true );
         btnUpdate.setText( "Salvar" );
-        btnCancel.setEnabled( true );
         enableComponents( true );
+        this.delTelefone.clear();
 
     }//GEN-LAST:event_btnNewActionPerformed
 
@@ -516,21 +465,41 @@ public class ViewInstrutor extends javax.swing.JFrame{
 
         if( btnNew.isEnabled() ){
 
+            System.out.println( "Editar" );
             listElements.setEnabled( false );
             btnDelete.setEnabled( false );
             btnNew.setEnabled( false );
             btnUpdate.setText( "Salvar" );
             btnCancel.setEnabled( true );
-            listElements.clearSelection();
+            enableComponents( true );
+//            this.cadTelefone.clear();
+            this.delTelefone.clear();
+            btnUpdate.setEnabled( true );
 
-        }else{
+        }else{// EXECUTE SALVAR
 
+            if( cbTitulacao.getSelectedIndex() == -1 ){
+            
+                JOptionPane.showMessageDialog( this, "Seleciona uma titualção", "Erro", JOptionPane.ERROR_MESSAGE );
+                return;
+                
+            }
+            
+            System.out.println( "Salvar" );
             listElements.setEnabled( true );
             btnNew.setEnabled( true );
             btnUpdate.setText( "Editar" );
             btnCancel.setEnabled( false );
+            enableComponents( false );
             this.setInstrutorByForms( this.currentInstrutor );
-            listElemetsModel.addElement( currentInstrutor );
+            
+            if( !listElemetsModel.contains( currentInstrutor ) ){
+            
+                listElemetsModel.addElement( currentInstrutor );
+
+            }
+            
+            listElements.setSelectedValue( this.currentInstrutor, true );
 
         }
 
@@ -547,20 +516,181 @@ public class ViewInstrutor extends javax.swing.JFrame{
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
-        
+
         listElements.setEnabled( true );
         btnNew.setEnabled( true );
         btnUpdate.setText( "Editar" );
         btnCancel.setEnabled( false );
         btnDelete.setEnabled( listElements.getSelectedValue() != null );
         enableComponents( false );
-        
+
     }//GEN-LAST:event_btnCancelActionPerformed
+
+    private void btnControleTitulacaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnControleTitulacaoActionPerformed
+
+        try{
+
+            Connection con = ConnectionFactory.createConnectionToMySQL();
+            GenericTypeList< Titulacao, TitulacaoDao> titulacaoList = new GenericTypeList<>( "Titulação", Titulacao::new, () -> new TitulacaoDao( con ) );
+
+            titulacaoList.setModal( true );
+            titulacaoList.setLocationRelativeTo( this );
+            titulacaoList.setVisible( true );
+            updateComboTitulacao();
+
+        }catch( SQLException ex ){
+            Logger.getLogger( ViewInstrutor.class.getName() ).log( Level.SEVERE, null, ex );
+        }
+
+
+    }//GEN-LAST:event_btnControleTitulacaoActionPerformed
+
+    private void updateComboTitulacao(){
+
+        try{
+
+            Connection con = ConnectionFactory.createConnectionToMySQL();
+
+            TitulacaoDao titulacaoDao = new TitulacaoDao( con );
+            List<Titulacao> titulacoes = titulacaoDao.findAll();
+            comboTitulacaoModel.clear();
+            comboTitulacaoModel.addListElements( titulacoes );
+            con.close();
+
+        }catch( SQLException ex ){
+
+            System.out.println( "Erro na conexão do list Instrutor > ComboBox Titulação" + ex.getMessage() );
+
+        }
+
+    }
+
+    private void fillFieldsByInstrutor( Instrutor instrutor ){
+
+        tfNome.setText( instrutor.getNome() );
+        tfRg.setText( instrutor.getRg() );
+        dateNascimento.getCurrent().setTime( instrutor.getNascimento() );
+        tfNome.setText( instrutor.getNome() );
+        for( Titulacao element : comboTitulacaoModel.getElements() ){
+
+            System.out.println( element );
+            System.out.println( element.getIdTitulacao() );
+
+        }
+        System.out.println( instrutor.getTitulacao() );
+        System.out.println( instrutor.getTitulacao().getIdTitulacao() );
+        Titulacao titulacao = comboTitulacaoModel.getElements().stream()
+                .filter( t -> t.getIdTitulacao() == instrutor.getTitulacao().getIdTitulacao() )
+                .findFirst()
+                .get();
+
+        comboTitulacaoModel.setSelectedItem( titulacao );
+
+        telefoneTableModel.clear();
+        telefoneTableModel.addAll( instrutor.getTelefones() );
+
+    }
+
+    private void setInstrutorByForms( Instrutor instrutor ){
+
+        instrutor.setNome( tfNome.getText() );
+        instrutor.setRg( tfRg.getText() );
+        instrutor.setNascimento( dateNascimento.getCurrent().getTime() );
+        instrutor.setTitulacao( comboTitulacaoModel.getSelectedItem() );
+
+        try{
+
+            Connection con = ConnectionFactory.createConnectionToMySQL();
+            TelefoneDao telefoneDao = new TelefoneDao( con );
+            delTelefone.stream()
+                    .filter( t -> t.getIdTelefone() != -1 )
+                    .forEach( t -> telefoneDao.delete( t ) );
+
+        }catch( SQLException ex ){
+
+            Logger.getLogger( ViewInstrutor.class.getName() ).log( Level.SEVERE, null, ex );
+
+        }
+
+        if( instrutor.getIdInstrutor() != -1 ){
+
+            instrutorDaoOperate( ( dao ) -> dao.update( instrutor ) );
+
+        }else{
+
+            instrutorDaoOperate( ( dao ) -> dao.create( instrutor ) );
+
+        }
+
+    }
+
+    private boolean instrutorDaoOperate( Function< InstrutorDao, Boolean> operation ){
+
+        try{
+
+            Connection con = ConnectionFactory.createConnectionToMySQL();
+
+            InstrutorDao instrutorDao = new InstrutorDao( con );
+            return operation.apply( instrutorDao );
+
+        }catch( SQLException ex ){
+
+            Logger.getLogger( ViewInstrutor.class.getName() ).log( Level.SEVERE, null, ex );
+
+        }
+
+        return false;
+
+    }
+
+    private void emptyFields(){
+
+        tfNome.setText( "" );
+        tfRg.setText( "" );
+        dateNascimento.getCurrent().setTime( new Date() );
+        telefoneTableModel.clear();
+
+    }
+
+    private void enableComponents( boolean enable ){
+
+        tbTelefone.setEnabled( enable );
+        List<Component> components = Arrays.asList( paneFields.getComponents() );
+        components.forEach( c -> c.setEnabled( enable ) );
+
+    }
+
+//    List<Telefone> cadTelefone = new LinkedList<>();;
+    List<Telefone> delTelefone = new LinkedList<>();
+
+    private void addTelefoneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addTelefoneActionPerformed
+
+        Telefone telefone = new Telefone( "", Telefone.TIPOS_TELEFONE[0], this.currentInstrutor);
+        telefoneTableModel.addRow( telefone );
+        this.currentInstrutor.addTelefone( telefone );
+
+    }//GEN-LAST:event_addTelefoneActionPerformed
+
+    private void removeTelefoneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeTelefoneActionPerformed
+
+        int selectedRow = tbTelefone.getSelectedRow();
+
+        if( selectedRow != -1 ){
+
+            Telefone telefone = telefoneTableModel.getTelefone( selectedRow );
+            delTelefone.add( telefone );
+            telefoneTableModel.removeTelefone( telefone );
+            currentInstrutor.removeTelefone( telefone );
+
+        }
+
+    }//GEN-LAST:event_removeTelefoneActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel PaneRight;
     private javax.swing.JButton addTelefone;
     private javax.swing.JButton btnCancel;
+    private javax.swing.JButton btnControleTitulacao;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnNew;
     private javax.swing.JButton btnUpdate;

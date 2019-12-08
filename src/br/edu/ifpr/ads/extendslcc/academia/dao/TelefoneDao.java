@@ -35,7 +35,7 @@ public class TelefoneDao extends DefaultDao<Integer, Telefone>{
             
             PreparedStatement query = con.prepareStatement( sql, Statement.RETURN_GENERATED_KEYS );
             query.setString( 1, entity.getNumero() );
-            query.setInt( 2, entity.getTipo() );
+            query.setString( 2, entity.getTipo() );
             
             if( entity.getInstrutor().getIdInstrutor() == -1){
                 
@@ -83,7 +83,7 @@ public class TelefoneDao extends DefaultDao<Integer, Telefone>{
                 telefone = new Telefone();
                 telefone.setIdTelefone( rs.getInt( "idTelefone" ) );
                 telefone.setNumero( rs.getString( "numero" ) );
-                telefone.setTipo( rs.getInt( "tipo" ) );
+                telefone.setTipo( rs.getString( "tipo" ) );
 
                 InstrutorDao instrutorDao = new InstrutorDao( con );
                 Instrutor instrutor = instrutorDao.retrieve( rs.getInt( "Instrutor_idInstrutor" ) );
@@ -112,8 +112,9 @@ public class TelefoneDao extends DefaultDao<Integer, Telefone>{
 
             PreparedStatement query = con.prepareStatement( sql );
             query.setString( 1, entity.getNumero() );
-            query.setInt( 2, entity.getTipo() );
+            query.setString( 2, entity.getTipo() );
             query.setInt( 3, entity.getInstrutor().getIdInstrutor() );
+            query.setInt( 4, entity.getIdTelefone() );
 
             query.executeUpdate();
 
@@ -174,7 +175,7 @@ public class TelefoneDao extends DefaultDao<Integer, Telefone>{
                 Telefone telefone = new Telefone();
                 telefone.setIdTelefone( rs.getInt( "idTelefone" ) );
                 telefone.setNumero( rs.getString( "numero" ) );
-                telefone.setTipo( rs.getInt( "tipo" ) );
+                telefone.setTipo( rs.getString( "tipo" ) );
                 telefone.setInstrutor( Instrutor );
                         
                 telefones.add( telefone );
@@ -209,7 +210,7 @@ public class TelefoneDao extends DefaultDao<Integer, Telefone>{
                 Telefone telefone = new Telefone();
                 telefone.setIdTelefone( rs.getInt( "idTelefone" ) );
                 telefone.setNumero( rs.getString( "numero" ) );
-                telefone.setTipo( rs.getInt( "tipo" ) );
+                telefone.setTipo( rs.getString( "tipo" ) );
 
                 InstrutorDao instrutorDao = new InstrutorDao( con );
                 Instrutor instrutor = instrutorDao.retrieve( rs.getInt( "Instrutor_idInstrutor" ) );
