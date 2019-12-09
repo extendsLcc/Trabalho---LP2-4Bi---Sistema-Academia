@@ -216,7 +216,7 @@ public class AlunoDao extends DefaultDao<Integer, Aluno>{
         if( turmaId != 0 ){
 
             TurmaDao turmaDao = new TurmaDao( this.con );
-            aluno.setTurma( turmaDao.retrieve( turmaId ) );
+            aluno.setTurma( turmaDao.findTurmaMonitor( turmaId ) );
 
         }else{
 

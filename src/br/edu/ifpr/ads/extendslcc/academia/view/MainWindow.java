@@ -48,7 +48,6 @@ public class MainWindow extends javax.swing.JFrame {
         menuCadastro = new javax.swing.JMenu();
         itemInstrutor = new javax.swing.JMenuItem();
         itemTurma = new javax.swing.JMenuItem();
-        itemAtividade = new javax.swing.JMenuItem();
         itemAluno = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         jMenu1 = new javax.swing.JMenu();
@@ -77,14 +76,6 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
         menuCadastro.add(itemTurma);
-
-        itemAtividade.setText("Atividade");
-        itemAtividade.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                itemAtividadeActionPerformed(evt);
-            }
-        });
-        menuCadastro.add(itemAtividade);
 
         itemAluno.setText("Aluno");
         itemAluno.addActionListener(new java.awt.event.ActionListener() {
@@ -154,12 +145,6 @@ public class MainWindow extends javax.swing.JFrame {
         
     }//GEN-LAST:event_itemAlunoActionPerformed
 
-    private void itemAtividadeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemAtividadeActionPerformed
-        
-        new ViewAtividade().setVisible( true) ;
-        
-    }//GEN-LAST:event_itemAtividadeActionPerformed
-
     private void itemChamadaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemChamadaActionPerformed
 
         
@@ -204,7 +189,6 @@ public class MainWindow extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem itemAluno;
-    private javax.swing.JMenuItem itemAtividade;
     private javax.swing.JMenuItem itemChamada;
     private javax.swing.JMenuItem itemInstrutor;
     private javax.swing.JMenuItem itemMatricula;

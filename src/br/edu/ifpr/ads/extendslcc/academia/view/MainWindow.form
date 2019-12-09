@@ -25,14 +25,6 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="itemTurmaActionPerformed"/>
               </Events>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="itemAtividade">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Atividade"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="itemAtividadeActionPerformed"/>
-              </Events>
-            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="itemAluno">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Aluno"/>
@@ -114,10 +106,10 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Academia de Gin&#xe1;stica"/>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Tahoma" size="36" style="1"/>
         </Property>
+        <Property name="text" type="java.lang.String" value="Academia de Gin&#xe1;stica"/>
       </Properties>
     </Component>
   </SubComponents>

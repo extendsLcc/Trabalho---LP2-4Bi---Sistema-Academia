@@ -385,7 +385,7 @@ public class ViewInstrutor extends javax.swing.JFrame{
         comboTitulacaoModel = new GenericComboModel<>();
         cbTitulacao.setModel( comboTitulacaoModel );
         updateComboTitulacao();
-        
+
         telefoneTableModel = new TelefoneTableModel( tbTelefone );
         tbTelefone.setModel( telefoneTableModel );
         tbTelefone.getColumnModel().getColumn( 1 ).setCellEditor( new ComboTipoTelefone() );
@@ -479,12 +479,12 @@ public class ViewInstrutor extends javax.swing.JFrame{
         }else{// EXECUTE SALVAR
 
             if( cbTitulacao.getSelectedIndex() == -1 ){
-            
+
                 JOptionPane.showMessageDialog( this, "Seleciona uma titualção", "Erro", JOptionPane.ERROR_MESSAGE );
                 return;
-                
+
             }
-            
+
             System.out.println( "Salvar" );
             listElements.setEnabled( true );
             btnNew.setEnabled( true );
@@ -492,13 +492,13 @@ public class ViewInstrutor extends javax.swing.JFrame{
             btnCancel.setEnabled( false );
             enableComponents( false );
             this.setInstrutorByForms( this.currentInstrutor );
-            
+
             if( !listElemetsModel.contains( currentInstrutor ) ){
-            
+
                 listElemetsModel.addElement( currentInstrutor );
 
             }
-            
+
             listElements.setSelectedValue( this.currentInstrutor, true );
 
         }
@@ -605,6 +605,7 @@ public class ViewInstrutor extends javax.swing.JFrame{
             delTelefone.stream()
                     .filter( t -> t.getIdTelefone() != -1 )
                     .forEach( t -> telefoneDao.delete( t ) );
+            con.close();
 
         }catch( SQLException ex ){
 
@@ -665,7 +666,7 @@ public class ViewInstrutor extends javax.swing.JFrame{
 
     private void addTelefoneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addTelefoneActionPerformed
 
-        Telefone telefone = new Telefone( "", Telefone.TIPOS_TELEFONE[0], this.currentInstrutor);
+        Telefone telefone = new Telefone( "", Telefone.TIPOS_TELEFONE[0], this.currentInstrutor );
         telefoneTableModel.addRow( telefone );
         this.currentInstrutor.addTelefone( telefone );
 

@@ -108,6 +108,7 @@ public class InstrutorDao extends DefaultDao<Integer, Instrutor>{
                 instrutor.setNascimento( rs.getDate( "nascimento" ) );
                 
                 TurmaDao turmaDao = new TurmaDao( this.con );
+                System.out.println( "instr Dao" );
                 List<Turma> turmas = turmaDao.findByInstrutor( instrutor );
                 final Instrutor instruc = instrutor;
                 turmas.forEach( turma -> turma.setInstrutor( instruc ) );

@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @author aluno
  */
-public class Atividade {
+public class Atividade implements Type{
     
     private int idAtividade = -1;
     private String nome;
@@ -69,6 +69,20 @@ public class Atividade {
     @Override
     public String toString(){
         return nome;
+    }
+
+    @Override
+    public void setId( int id ){
+
+        this.setIdAtividade( id );
+
+    }
+
+    @Override
+    public int getId(){
+
+        return this.getIdAtividade();
+
     }
     
 }

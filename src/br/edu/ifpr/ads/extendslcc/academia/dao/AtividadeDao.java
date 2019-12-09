@@ -74,6 +74,7 @@ public class AtividadeDao extends DefaultDao<Integer, Atividade>{
             while( rs.next() ){
 
                 atividade = new Atividade();
+                atividade.setIdAtividade( primaryKey );
                 atividade.setNome( rs.getString( "nome" ) );
 
             }

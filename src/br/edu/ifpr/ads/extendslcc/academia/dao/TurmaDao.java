@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -83,7 +84,7 @@ public class TurmaDao extends DefaultDao< Integer, Turma>{
     @Override
     public Turma retrieve( Integer primaryKey ){
 
-        Turma aluno = null;
+        Turma turma = null;
         String sql = "SELECT * FROM Turma WHERE idTurma = ?";
 
         try{
@@ -94,7 +95,7 @@ public class TurmaDao extends DefaultDao< Integer, Turma>{
 
             while( rs.next() ){
 
-                aluno = this.getTurmaFromResultSet( rs );
+                turma = this.getTurmaFromResultSet( rs );
 
             }
 
@@ -106,7 +107,7 @@ public class TurmaDao extends DefaultDao< Integer, Turma>{
 
         }
 
-        return aluno;
+        return turma;
 
     }
 
@@ -199,6 +200,40 @@ public class TurmaDao extends DefaultDao< Integer, Turma>{
 
     }
 
+    public Turma findTurmaMonitor( Integer pk ){
+
+        Turma turma = null;
+        String sql = "SELECT * FROM Turma WHERE idTurma = ?";
+
+        try{
+
+            PreparedStatement query = con.prepareStatement( sql );
+            query.setInt( 1, pk );
+            ResultSet rs = query.executeQuery();
+
+            while( rs.next() ){
+
+                turma = new Turma();
+                turma.setIdTurma( rs.getInt( "idTurma" ) );
+                turma.setHorario( rs.getTime( "horario" ).toLocalTime() );
+                turma.setDuracao( rs.getTime( "duracao" ).toLocalTime() );
+                turma.setDataInicio( rs.getDate( "dataInicio" ) );
+                turma.setDataFim( rs.getDate( "dataFim" ) );
+
+            }
+
+            query.close();
+
+        }catch( Exception e ){
+
+            System.out.println( "SQL exception occured - SELECT Turma " + e );
+
+        }
+
+        return turma;
+
+    }
+
     List<Turma> findByInstrutor( Instrutor instrutor ){
 
         List<Turma> turmas = new LinkedList<>();
@@ -212,7 +247,30 @@ public class TurmaDao extends DefaultDao< Integer, Turma>{
 
             while( rs.next() ){
 
-                turmas.add( this.getTurmaFromResultSet( rs ) );
+                Turma turma = new Turma();
+                turma.setIdTurma( rs.getInt( "idTurma" ) );
+                turma.setHorario( rs.getTime( "horario" ).toLocalTime() );
+                turma.setDuracao( rs.getTime( "duracao" ).toLocalTime() );
+                turma.setDataInicio( rs.getDate( "dataInicio" ) );
+                turma.setDataFim( rs.getDate( "dataFim" ) );
+
+                int atividadeId = rs.getInt( "Atividade_idAtividade" );
+                AtividadeDao atividadeDao = new AtividadeDao( this.con );
+                turma.setAtividade( atividadeDao.retrieve( atividadeId ) );
+
+                turma.setInstrutor( instrutor );
+
+                MatriculaDao matriculaDao = new MatriculaDao( con );
+                System.out.println( "Turma Dao" );
+                List<Aluno> alunos = matriculaDao.findAlunosByTurma( turma );
+                alunos.forEach(
+                        aluno -> matriculaDao.findTurmasByAluno( aluno )
+                                .forEach(
+                                        turm -> aluno.addTurma( turm )
+                                )
+                );
+
+                turmas.add( turma );
 
             }
 
@@ -238,30 +296,12 @@ public class TurmaDao extends DefaultDao< Integer, Turma>{
         turma.setDataFim( rs.getDate( "dataFim" ) );
 
         int atividadeId = rs.getInt( "Atividade_idAtividade" );
-
-        if( atividadeId != 0 ){
-
-            AtividadeDao atividadeDao = new AtividadeDao( this.con );
-            turma.setAtividade( atividadeDao.retrieve( atividadeId ) );
-
-        }else{
-
-            turma.setAtividade( null );
-
-        }
+        AtividadeDao atividadeDao = new AtividadeDao( this.con );
+        turma.setAtividade( atividadeDao.retrieve( atividadeId ) );
 
         int instrutorId = rs.getInt( "Instrutor_idInstrutor" );
-
-        if( instrutorId != 0 ){
-
-            InstrutorDao instrutorDao = new InstrutorDao( this.con );
-            turma.setInstrutor( instrutorDao.retrieve( instrutorId ) );
-
-        }else{
-
-            turma.setInstrutor( null );
-
-        }
+        InstrutorDao instrutorDao = new InstrutorDao( this.con );
+        turma.setInstrutor( instrutorDao.retrieve( instrutorId ) );
 
         MatriculaDao matriculaDao = new MatriculaDao( con );
         List<Aluno> alunos = matriculaDao.findAlunosByTurma( turma );

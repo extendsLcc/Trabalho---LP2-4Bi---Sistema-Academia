@@ -150,13 +150,13 @@ public class MatriculaDao extends DefaultDao<Integer, Matricula>{
         return turmas;
 
     }
-
+    
     public List<Aluno> findAlunosByTurma( Turma turma ){
 
         List<Aluno> alunos = new ArrayList<>();
 
-        String sql = "SELECT Aluno.* FROM Aluno AS a LEFT JOIN Matricula AS m "
-                + "ON a.idAluno = Aluno_idAluno AND m.Aluno_idAluno = ?";
+        String sql = "SELECT aluno.* FROM aluno LEFT JOIN matricula "
+                + "ON aluno.idAluno = Aluno_idAluno AND matricula.Aluno_idAluno = ?";
 
         try{
 
@@ -177,11 +177,11 @@ public class MatriculaDao extends DefaultDao<Integer, Matricula>{
                 aluno.setPeso( rs.getFloat( "peso" ) );
 
                 int turmaId = rs.getInt( "Turma_idTurma" );
-
-                if( turmaId != 0 ){
+                System.out.println( "Matricula DAo" );
+                if( turmaId != -1 ){
 
                     TurmaDao turmaDao = new TurmaDao( this.con );
-                    aluno.setTurma( turmaDao.retrieve( turmaId ) );
+                    aluno.setTurma( turmaDao.findTurmaMonitor( turmaId ) );
 
                 }else{
 
